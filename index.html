@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Transaction System</title>
+<style>
+    body {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #000;
+        color: #0f0;
+        padding: 20px;
+    }
+    h1 {
+        color: #0f0;
+        text-align: center;
+    }
+    .prompt {
+        color: #0f0;
+        display: inline-block;
+        width: 120px;
+    }
+    .input-field {
+        display: inline-block;
+    }
+    .input-field input {
+        background-color: #000;
+        color: #0f0;
+        border: 1px solid #0f0;
+        padding: 2px 5px;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .transaction-result {
+        margin-top: 20px;
+    }
+    .balances {
+        margin-top: 20px;
+    }
+    .help {
+        border: 1px solid #0f0;
+        background-color: #000;
+        color: #0f0;
+        padding: 10px;
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+<h1>Simple Transaction System</h1>
+
+<div class="cli-interface">
+    <div id="inputSection">
+        <div class="prompt">Command:</div>
+        <div class="input-field">
+            <input type="text" id="commandInput">
+        </div>
+    </div>
+    <div id="transactionResult" class="transaction-result"></div>
+    <div id="balances" class="balances"></div>
+    <div id="helpSection" class="help">
+        <strong>Available Commands:</strong><br>
+        <ul>
+            <li><strong>send</strong>: Send money from one user to another. Syntax: <code>send [sender_id] [receiver_id] [amount]</code></li>
+            <li><strong>help</strong>: Show available commands.</li>
+            <li><strong>exit</strong>: Close the transaction system.</li>
+        </ul>
+    </div>    
+</div>
+
+<script>
+// Define variables to store user input
+var command;
+
+// User balances (simulated permanent storage)
+var userBalances = {
+    1: 100, // Initial balance for user 1
+    2: 0    // Initial balance for user 2
+};
+
+// Recent transactions (simulated permanent storage)
+var transactions = [];
+
+// Function to execute command based on user input
+function executeCommand() {
+    command = document.getElementById("commandInput").value.trim();
+    console.log("Command:", command);
+
+    // Split the command into parts
+    var parts = command.split(" ");
+
+    // Execute command based on the first part
+    switch (parts[0]) {
+        case "send":
+            // Execute send command
+            if (parts.length !== 4) {
+                displayResult("Invalid syntax. Use: send [sender_id] [receiver_id] [amount]");
+                break;
+            }
+            var senderId = parseInt(parts[1]);
+            var receiverId = parseInt(parts[2]);
+            var amount = parseFloat(parts[3]);
+            sendMoney(senderId, receiverId, amount);
+            break;
+        case "help":
+            // Display help information
+            displayHelp();
+            break;
+        case "exit":
+            // Exit the transaction system
+            displayResult("Exiting transaction system...");
+            setTimeout(function() {
+                window.close();
+            }, 1000);
+            break;
+        default:
+            // Invalid command
+            displayResult("Invalid command. Type 'help' for available commands.");
+            break;
+    }
+
+    // Clear the input field after executing command
+    document.getElementById("commandInput").value = "";
+}
+
+// Function to display transaction result
+function displayResult(message) {
+    document.getElementById("transactionResult").innerHTML = message;
+}
+
+// Function to display help information
+function displayHelp() {
+    var helpText = "<strong>Available Commands:</strong><br>" +
+                   "<ul>" +
+                   "<li><strong>send</strong>: Send money from one user to another. Syntax: <code>send [sender_id] [receiver_id] [amount]</code></li>" +
+                   "<li><strong>help</strong>: Show available commands.</li>" +
+                   "<li><strong>exit</strong>: Close the transaction system.</li>" +
+                   "</ul>";
+    var helpSections = document.getElementsByClassName("help");
+    for (var i = 0; i < helpSections.length; i++) {
+        helpSections[i].innerHTML = helpText;
+    }
+    displayResult(helpText);
+}
+
+// Function to send money
+function sendMoney(senderId, receiverId, amount) {
+    // Check if sender has sufficient balance
+    if (userBalances[senderId] < amount) {
+        displayResult("Sender does not have sufficient balance.");
+        return;
+    }
+
+    // Update balances
+    userBalances[senderId] -= amount;
+    userBalances[receiverId] += amount;
+
+    // Add transaction to history
+    transactions.push({ senderId: senderId, receiverId: receiverId, amount: amount });
+
+    // Display transaction result
+    displayResult("Transaction successful: $" + amount.toFixed(2) + " sent from user " + senderId + " to user " + receiverId + ".");
+
+    // Update balances display
+    displayBalances();
+}
+
+// Function to display user balances
+function displayBalances() {
+    var balancesText = "<strong>User Balances:</strong><br>";
+    for (var userId in userBalances) {
+        balancesText += "User " + userId + ": $" + userBalances[userId].toFixed(2) + "<br>";
+    }
+    document.getElementById("balances").innerHTML = balancesText;
+}
+
+// Add event listener for Enter key press
+document.getElementById("commandInput").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+        executeCommand();
+    }
+});
+
+// Display help information initially
+displayHelp();
+displayBalances(); // Display initial user balances
+</script>
+
+</body>
+</html>
