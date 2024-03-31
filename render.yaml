@@ -1,0 +1,5 @@
+services:
+  - name: simple-transaction-system
+    env: docker
+    buildCommand: docker build -t simple-transaction-system .
+    startCommand: docker run -p 80:80 simple-transaction-system
